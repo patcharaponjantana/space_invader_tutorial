@@ -1,6 +1,6 @@
 import pygame
 from pygame import mixer
-import gamevariable as gv
+import my_space_invader.gamevariables as gv
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
 mixer.init()

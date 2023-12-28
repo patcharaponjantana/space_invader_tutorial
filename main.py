@@ -2,7 +2,7 @@ import pygame
 from pygame import mixer
 from pygame.locals import KEYDOWN, K_ESCAPE
 from gameobjects import Spaceship
-import gamevariable as gv
+import my_space_invader.gamevariables as gv
 
 # init game
 pygame.init()
@@ -28,7 +28,7 @@ while run:
 
 	#draw background
     gv.draw_bg(screen)
-    
+
     if countdown > 0:
         gv.draw_text(
             screen,
