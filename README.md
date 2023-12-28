@@ -96,4 +96,61 @@ while run:
 ``` 
 
 ## Add Gameover Condition
-- add colision condition
+- check that spaceship hit with any aliens
+```py
+# gameobjects.py
+
+...
+
+
+class Spaceship(pygame.sprite.Sprite):
+    def __init__(self, x, y, health):
+        ...
+
+        self.is_game_over = False
+
+    # add alien_group for checking collision
+    def update(self, alien_group):
+        ...
+
+        # add up, down movement
+        elif key[pygame.K_UP] and self.rect.top > 0:
+            self.rect.y -= speed        
+        elif key[pygame.K_DOWN] and self.rect.bottom < gv.screen_height:
+            self.rect.y += speed            
+            
+        if pygame.sprite.spritecollide(self, alien_group, False, pygame.sprite.collide_mask):
+            self.kill()
+            self.is_game_over = True
+
+        return self.is_game_over
+
+```
+
+- get game over status. if it is true, game will show game over text.
+```py
+is_game_over = False
+while run:
+
+    if countdown > 0:
+        ...
+    
+    else:
+        # update game objects            
+        is_game_over = spaceship.update(alien_group)
+        ...
+
+    # draw sprite groups
+    ...
+
+    if is_game_over:
+        gv.draw_text(
+        screen,
+        text='GAME OVER!', 
+        font=gv.font40, 
+        text_color=gv.white, 
+        x=int(gv.screen_width / 2 - 110), 
+        y=int(gv.screen_height / 2 + 50)
+    )
+
+```

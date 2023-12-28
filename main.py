@@ -31,6 +31,7 @@ for row in range(gv.alien_rows):
         alien_group.add(alien)
 
 run = True
+is_game_over = False
 while run:
 
     clock.tick(gv.fps)
@@ -62,13 +63,22 @@ while run:
     
     else:
         # update game objects            
-        spaceship.update()
+        is_game_over = spaceship.update(alien_group)
         alien_group.update()
 
     # draw sprite groups
     spaceship_group.draw(screen)
     alien_group.draw(screen)
 
+    if is_game_over:
+        gv.draw_text(
+        screen,
+        text='GAME OVER!', 
+        font=gv.font40, 
+        text_color=gv.white, 
+        x=int(gv.screen_width / 2 - 110), 
+        y=int(gv.screen_height / 2 + 50)
+    )
 
 	# event handlers
     for event in pygame.event.get():
