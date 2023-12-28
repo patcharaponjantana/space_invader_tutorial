@@ -9,6 +9,10 @@ fps = 60
 screen_width = 600
 screen_height = 800
 
+# alien rows, cols
+alien_rows = 5
+alien_cols = 5
+
 
 # define fonts
 font30 = pygame.font.SysFont('Constantia', 30)

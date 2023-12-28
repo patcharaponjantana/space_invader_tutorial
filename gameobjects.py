@@ -1,6 +1,8 @@
 import pygame
 from pygame import mixer
-import my_space_invader.gamevariables as gv
+import random
+
+import gamevariables as gv
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
 mixer.init()
@@ -30,3 +32,20 @@ class Spaceship(pygame.sprite.Sprite):
 			self.rect.x -= speed
 		if key[pygame.K_RIGHT] and self.rect.right < gv.screen_width:
 			self.rect.x += speed
+
+class Aliens(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = pygame.image.load(f"img/alien{str(random.randint(1, 5))}.png")
+		self.rect = self.image.get_rect()
+		self.rect.center = [x, y]
+		self.move_counter = 0
+		self.move_direction = 1
+
+	def update(self):
+		self.rect.x += self.move_direction
+		self.move_counter += 1
+		if abs(self.move_counter) > 75:
+			self.move_direction *= -1
+			self.move_counter *= self.move_direction
+			self.rect.y += 5

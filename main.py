@@ -1,8 +1,8 @@
 import pygame
 from pygame import mixer
 from pygame.locals import KEYDOWN, K_ESCAPE
-from gameobjects import Spaceship
-import my_space_invader.gamevariables as gv
+from gameobjects import Spaceship, Aliens
+import gamevariables as gv
 
 # init game
 pygame.init()
@@ -16,10 +16,19 @@ last_count = pygame.time.get_ticks()
 
 # create sprite groups
 spaceship_group = pygame.sprite.Group()
+alien_group = pygame.sprite.Group()
 
 # create player
 spaceship = Spaceship(int(gv.screen_width / 2), gv.screen_height - 100, 3)
 spaceship_group.add(spaceship)
+
+# generate aliens
+for row in range(gv.alien_rows):
+    for col in range(gv.alien_cols):
+        x = 100 + col * 100
+        y = 100 + row * 70
+        alien = Aliens(x=x, y=y)
+        alien_group.add(alien)
 
 run = True
 while run:
@@ -50,14 +59,15 @@ while run:
         if count_timer - last_count > 1000:
             countdown -= 1
             last_count = count_timer
+    
+    else:
+        # update game objects            
+        spaceship.update()
+        alien_group.update()
 
-
-    # update game objects            
-    spaceship.update()
-
-
-	# draw sprite groups
+    # draw sprite groups
     spaceship_group.draw(screen)
+    alien_group.draw(screen)
 
 
 	# event handlers
