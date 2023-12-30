@@ -3,10 +3,13 @@
 ref:  https://www.youtube.com/watch?v=PFMoo_dvhyw 
 
 # Content
+part 1
 - run project 
 - add enemies
 - add gameover condition
 - add spaceship bullet
+
+part 2
 - add enemy bullets
 - add explosion
 - add health bar
