@@ -6,8 +6,9 @@ ref:  https://www.youtube.com/watch?v=PFMoo_dvhyw
 - run project 
 - add enemies
 - add gameover condition
-- add character bullet
+- add spaceship bullet
 - add enemy bullets
+- add explosion
 - add health bar
 - add missions
 - add boss
@@ -107,7 +108,7 @@ class Spaceship(pygame.sprite.Sprite):
     def __init__(self, x, y, health):
         ...
 
-        self.is_game_over = False
+        self.is_dead = False
 
     # add alien_group for checking collision
     def update(self, alien_group):
@@ -121,9 +122,9 @@ class Spaceship(pygame.sprite.Sprite):
             
         if pygame.sprite.spritecollide(self, alien_group, False, pygame.sprite.collide_mask):
             self.kill()
-            self.is_game_over = True
+            self.is_dead = True
 
-        return self.is_game_over
+        return self.is_dead
 
 ```
 
@@ -153,4 +154,81 @@ while run:
         y=int(gv.screen_height / 2 + 50)
     )
 
+```
+
+## Add Spaceship Bullet
+- add bullet class
+```py
+# gameobjects.py
+
+...
+
+class Spaceship(pygame.sprite.Sprite):
+    def __init__(self, x, y, health):
+        ...
+
+        self.shoot_cooldown = 1000 # milliseconds
+
+    # add more bullet group
+    def update(self, alien_group, bullet_group):
+        ...
+
+        # record current time
+        time_now = pygame.time.get_ticks()
+            
+        # shoot
+        if key[pygame.K_SPACE] and (time_now - self.last_shot) > self.shoot_cooldown:
+            laser_fx.play()
+            bullet = Bullets(self.rect.centerx, self.rect.top)
+            bullet_group.add(bullet)
+            self.last_shot = time_now
+        
+        ...
+
+# create Bullets class
+class Bullets(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = pygame.image.load("img/bullet.png")
+		self.rect = self.image.get_rect()
+		self.rect.center = [x, y]
+
+	def update(self, alien_group):
+		self.rect.y -= 5
+		if self.rect.bottom < 0:
+			self.kill()
+		if pygame.sprite.spritecollide(self, alien_group, True):
+			self.kill()
+
+```
+
+- add bullet group, send it to spaceship and draw it
+
+```py
+# main.py
+
+...
+
+# create sprite groups
+...
+bullet_group = pygame.sprite.Group()
+
+while run:
+    
+    ...
+    if countdown > 0:
+        ...
+    else:
+        # update game objects            
+        is_game_over = spaceship.update(
+            alien_group=alien_group, 
+            bullet_group=bullet_group,
+        )
+        alien_group.update()
+        bullet_group.update(alien_group)
+
+    # draw sprite groups
+    spaceship_group.draw(screen)
+    alien_group.draw(screen)
+    bullet_group.draw(screen)
 ```

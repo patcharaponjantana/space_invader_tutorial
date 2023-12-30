@@ -17,6 +17,7 @@ last_count = pygame.time.get_ticks()
 # create sprite groups
 spaceship_group = pygame.sprite.Group()
 alien_group = pygame.sprite.Group()
+bullet_group = pygame.sprite.Group()
 
 # create player
 spaceship = Spaceship(int(gv.screen_width / 2), gv.screen_height - 100, 3)
@@ -63,12 +64,17 @@ while run:
     
     else:
         # update game objects            
-        is_game_over = spaceship.update(alien_group)
+        is_game_over = spaceship.update(
+            alien_group=alien_group, 
+            bullet_group=bullet_group,
+        )
         alien_group.update()
+        bullet_group.update(alien_group)
 
     # draw sprite groups
     spaceship_group.draw(screen)
     alien_group.draw(screen)
+    bullet_group.draw(screen)
 
     if is_game_over:
         gv.draw_text(
