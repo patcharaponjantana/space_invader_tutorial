@@ -8,10 +8,10 @@ pygame.mixer.pre_init(44100, -16, 2, 512)
 mixer.init()
 
 # load sounds
-laser_fx = pygame.mixer.Sound("img/laser.wav")
+laser_fx = pygame.mixer.Sound("audio/laser.wav")
 laser_fx.set_volume(0.25)
 
-explosion_fx = pygame.mixer.Sound("img/explosion.wav")
+explosion_fx = pygame.mixer.Sound("audio/explosion.wav")
 explosion_fx.set_volume(0.25)
 
 # create spaceship class
@@ -59,20 +59,21 @@ class Spaceship(pygame.sprite.Sprite):
 
 
 class Aliens(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, move_speed, bullet_speed):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(f"img/alien{str(random.randint(1, 5))}.png")
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
         self.move_counter = 0
-        self.move_direction = 1
+        self.move_speed = move_speed
+        self.bullet_speed = bullet_speed
 
     def update(self, bullet_group, explosion_group):
-        self.rect.x += self.move_direction
-        self.move_counter += 1
+        self.rect.x += self.move_speed
+        self.move_counter += self.move_speed
         if abs(self.move_counter) > 75:
-            self.move_direction *= -1
-            self.move_counter *= self.move_direction
+            self.move_speed *= -1
+            # self.move_counter = 0
             self.rect.y += 5
         
         if pygame.sprite.spritecollide(self, bullet_group, True):
@@ -134,7 +135,7 @@ class Explosion(pygame.sprite.Sprite):
 
     def update(self):
         explosion_speed = 3
-        #update explosion animation
+        # update explosion animation
         self.counter += 1
 
         if self.counter >= explosion_speed and self.index < len(self.images) - 1:
@@ -142,17 +143,17 @@ class Explosion(pygame.sprite.Sprite):
             self.index += 1
             self.image = self.images[self.index]
 
-        #if the animation is complete, delete explosion
+        # if the animation is complete, delete explosion
         if self.index >= len(self.images) - 1 and self.counter >= explosion_speed:
             self.kill()
 
 
 # Boss
 class Boss(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, move_speed):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(f"img/boss_alien.png")
-        print(self.image.get_rect())
+        
         # Set the size for the image
         DEFAULT_IMAGE_SIZE = (150, 150)
  
@@ -161,18 +162,11 @@ class Boss(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
-        self.move_counter = 0
-        self.move_direction = 5
+        self.move_speed = move_speed
 
     def update(self):
-        self.rect.x += self.move_direction
+        self.rect.x += self.move_speed
 
         if self.rect.left < 0 or self.rect.right >= gv.screen_width:
-            self.move_direction *= -1
-            self.rect.y += 10
-
-        # self.move_counter += 1
-        # if abs(self.move_counter) > 75:
-        #     self.move_direction *= -1
-        #     self.move_counter *= self.move_direction
-        #     self.rect.y += 5
+            self.move_speed *= -1
+            self.rect.y += 20

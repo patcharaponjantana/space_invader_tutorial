@@ -17,6 +17,10 @@ pygame.display.set_caption('Space Invanders')
 countdown = 3
 last_count = pygame.time.get_ticks()
 
+
+# def run_game():
+
+
 # create sprite groups
 spaceship_group = pygame.sprite.Group()
 alien_group = pygame.sprite.Group()
@@ -34,22 +38,37 @@ for row in range(gv.alien_rows):
     for col in range(gv.alien_cols):
         x = 100 + col * 100
         y = 100 + row * 70
-        alien = Aliens(x=x, y=y)
+        alien = Aliens(x=x, y=y, move_speed=3, bullet_speed=3)
         alien_group.add(alien)
 
 # create boss
-boss = Boss(int(gv.screen_width / 2), 100)
-boss_group.add(boss)
+# boss = Boss(int(gv.screen_width / 2), 100)
+# boss_group.add(boss)
 
 run = True
-is_game_over = False
 
 last_alien_shot = pygame.time.get_ticks()
 last_boss_shot = pygame.time.get_ticks()
 
+
+# level
+# alien speed, alien bullet speed, bullet delay
+boss_level = [1, 3]
+
+
+# Audio setup
+music = []
+music.append(pygame.mixer.Sound('./audio/music.wav'))                                 # music track 0
+music.append(pygame.mixer.Sound('./audio/8-Bit Boss Battle- 4 - By EliteFerrex.wav')) # music track 1
+music[0].set_volume(0.25)
+music[0].play(loops=-1)
+
+is_boss_spawned = False
+
 while run:
 
     clock.tick(gv.fps)
+    time_now = pygame.time.get_ticks()
 
 	#draw background
     gv.draw_bg(screen)
@@ -70,15 +89,13 @@ while run:
             text_color=gv.white, 
             x=int(gv.screen_width / 2 - 10), 
             y=int(gv.screen_height / 2 + 100)
-        )
-        count_timer = pygame.time.get_ticks()        
-        if count_timer - last_count > 1000:
+        )      
+        if time_now - last_count > 1000:
             countdown -= 1
-            last_count = count_timer
+            last_count = time_now
     
     else:
-        time_now = pygame.time.get_ticks()
-        
+
 		# alien shoot
         if (time_now - last_alien_shot > gv.alien_cooldown) and len(alien_bullet_group) < 5 and len(alien_group) > 0:
             attacking_alien = random.choice(alien_group.sprites())
@@ -106,7 +123,7 @@ while run:
         bullet_group.update()
         alien_bullet_group.update()
         explosion_group.update()
-        # boss_group.update()
+        
 
     # draw sprite groups
     spaceship_group.draw(screen)
@@ -114,8 +131,25 @@ while run:
     bullet_group.draw(screen)
     alien_bullet_group.draw(screen)
     explosion_group.draw(screen)
-    # boss_group.draw(screen)
+    
 
+    # check to spawn boss
+    if len(alien_group) == 0 and not is_boss_spawned:
+        # if current_aliens_amount == 0 and len(self.boss_alien.sprites())==0 and not self.boss_spawned:
+        boss = Boss(x=int(gv.screen_width / 2), y=-50, move_speed=5)
+        boss_group.add(boss)
+        is_boss_spawned = True    
+        music[0].fadeout(2000) # fade out old music track over 2 seconds
+
+        music[1].set_volume(0.25)
+        music[1].play(loops=-1)
+
+    if is_boss_spawned:
+        boss_group.update()
+
+        boss_group.draw(screen)
+
+    # check game over
     if len(spaceship_group) == 0:
         gv.draw_text(
             screen,
