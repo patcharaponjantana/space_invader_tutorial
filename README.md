@@ -1,6 +1,11 @@
 # Space Invader Tutorial
 
-ref:  https://www.youtube.com/watch?v=PFMoo_dvhyw 
+Ref: 
+- https://youtu.be/f4coFYbYQzw?si=yW3awvdysHYHV7Q2 
+
+Others Version:
+- https://www.youtube.com/watch?v=o-6pADy5Mdg  
+- https://www.youtube.com/watch?v=N17xEoyEkKY 
 
 # Content
 part 1
@@ -8,14 +13,17 @@ part 1
 - add enemies
 - add gameover condition
 - add spaceship bullet
+- add enemy bullets
 
 part 2
-- add enemy bullets
 - add explosion
-- add health bar
-- add missions
-- add boss
+- [add boss](#add-boss)
+- add number of aliens that are destroyed
+- add new missions
 
+
+
+# Part 1
 
 ## Run Project
 - install pygame
@@ -235,3 +243,28 @@ while run:
     alien_group.draw(screen)
     bullet_group.draw(screen)
 ```
+
+# Part 2
+## Add Boss
+- add boss class
+```py
+# gameobjects.py
+
+...
+
+class Boss(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(f"img/boss_alien.png")
+        self.rect = self.image.get_rect()
+        self.rect.center = [x, y]
+        self.move_counter = 0
+        self.move_direction = 1
+
+    def update(self):
+        self.rect.x += self.move_direction
+        self.move_counter += 1
+        if abs(self.move_counter) > 75:
+            self.move_direction *= -1
+            self.move_counter *= self.move_direction
+            self.rect.y += 5

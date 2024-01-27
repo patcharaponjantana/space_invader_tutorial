@@ -14,6 +14,9 @@ alien_rows = 5
 alien_cols = 5
 alien_cooldown = 1000 # bullet cooldown in milliseconds
 
+# boss 
+boss_cooldown = 1000 # bullet cooldown in milliseconds
+
 # define fonts
 font30 = pygame.font.SysFont('Constantia', 30)
 font40 = pygame.font.SysFont('Constantia', 40)

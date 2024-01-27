@@ -3,7 +3,7 @@ from pygame import mixer
 from pygame.locals import KEYDOWN, K_ESCAPE
 import random
 
-from gameobjects import Spaceship, Aliens, Alien_Bullets
+from gameobjects import Spaceship, Aliens, Alien_Bullets, Boss
 import gamevariables as gv
 
 
@@ -22,6 +22,8 @@ spaceship_group = pygame.sprite.Group()
 alien_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
 alien_bullet_group = pygame.sprite.Group()
+explosion_group = pygame.sprite.Group()
+boss_group = pygame.sprite.Group()
 
 # create player
 spaceship = Spaceship(int(gv.screen_width / 2), gv.screen_height - 100, 3)
@@ -35,10 +37,16 @@ for row in range(gv.alien_rows):
         alien = Aliens(x=x, y=y)
         alien_group.add(alien)
 
+# create boss
+boss = Boss(int(gv.screen_width / 2), 100)
+boss_group.add(boss)
+
 run = True
 is_game_over = False
 
 last_alien_shot = pygame.time.get_ticks()
+last_boss_shot = pygame.time.get_ticks()
+
 while run:
 
     clock.tick(gv.fps)
@@ -71,40 +79,52 @@ while run:
     else:
         time_now = pygame.time.get_ticks()
         
-		# shoot
+		# alien shoot
         if (time_now - last_alien_shot > gv.alien_cooldown) and len(alien_bullet_group) < 5 and len(alien_group) > 0:
             attacking_alien = random.choice(alien_group.sprites())
             alien_bullet = Alien_Bullets(attacking_alien.rect.centerx, attacking_alien.rect.bottom)
             alien_bullet_group.add(alien_bullet)
             last_alien_shot = time_now
 
+        # boss shoot
+        # if (time_now - last_boss_shot > gv.boss_cooldown):
+        #     boss_bullet = Alien_Bullets(boss.rect.centerx, boss.rect.bottom)
+        #     alien_bullet_group.add(boss_bullet)
+        #     last_boss_shot = time_now
+
         # update game objects            
-        is_game_over = spaceship.update(
+        spaceship_group.update(
             alien_group=alien_group, 
+            alien_bullet_group=alien_bullet_group,
             bullet_group=bullet_group,
+            explosion_group=explosion_group,
         )
-        alien_group.update()
-        bullet_group.update(alien_group)
-        alien_bullet_group.update(
-            spaceship_group=spaceship_group, 
-            spaceship=spaceship
+        alien_group.update(
+            bullet_group=bullet_group, 
+            explosion_group=explosion_group
         )
+        bullet_group.update()
+        alien_bullet_group.update()
+        explosion_group.update()
+        # boss_group.update()
 
     # draw sprite groups
     spaceship_group.draw(screen)
     alien_group.draw(screen)
     bullet_group.draw(screen)
     alien_bullet_group.draw(screen)
+    explosion_group.draw(screen)
+    # boss_group.draw(screen)
 
-    if is_game_over:
+    if len(spaceship_group) == 0:
         gv.draw_text(
-        screen,
-        text='GAME OVER!', 
-        font=gv.font40, 
-        text_color=gv.white, 
-        x=int(gv.screen_width / 2 - 110), 
-        y=int(gv.screen_height / 2 + 50)
-    )
+            screen,
+            text='GAME OVER!', 
+            font=gv.font40, 
+            text_color=gv.white, 
+            x=int(gv.screen_width / 2 - 110), 
+            y=int(gv.screen_height / 2 + 50)
+        )
 
 	# event handlers
     for event in pygame.event.get():
