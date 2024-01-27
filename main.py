@@ -59,7 +59,7 @@ boss_level = [1, 3]
 # Audio setup
 music = []
 music.append(pygame.mixer.Sound('./audio/music.wav'))                                 # music track 0
-music.append(pygame.mixer.Sound('./audio/8-Bit Boss Battle- 4 - By EliteFerrex.wav')) # music track 1
+music.append(pygame.mixer.Sound('./audio/8-Bit Boss Battle- 4 - By EliteFerrex.mp3')) # music track 1
 music[0].set_volume(0.25)
 music[0].play(loops=-1)
 
