@@ -15,7 +15,7 @@ alien_cols = 0
 alien_cooldown = 1000 # bullet cooldown in milliseconds
 
 # boss 
-boss_cooldown = 1000 # bullet cooldown in milliseconds
+boss_cooldown = 500 # bullet cooldown in milliseconds
 
 # define fonts
 font30 = pygame.font.SysFont('Constantia', 30)
@@ -40,3 +40,6 @@ def draw_text(screen, text, font, text_color, x, y):
 def draw_bg(screen):
 	screen.blit(bg, (0, 0))
 
+# Block
+obstacle_amount = 4
+ostable_x_positions = [num * (screen_width/obstacle_amount) for num in range(obstacle_amount)]
