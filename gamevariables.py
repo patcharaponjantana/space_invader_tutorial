@@ -10,13 +10,15 @@ screen_width = 600
 screen_height = 800
 
 # alien rows, cols
-alien_rows = 5
-alien_cols = 5
+alien_rows = 1
+alien_cols = 1
 alien_cooldown = 1000 # bullet cooldown in milliseconds
+alien_move_speed = 3
+alien_max_increase = 3
 
 # boss 
 boss_cooldown = 500 # bullet cooldown in milliseconds
-boss_laser_cooldown = 5000
+boss_laser_cooldown = 10000
 
 # define fonts
 font30 = pygame.font.SysFont('Constantia', 30)

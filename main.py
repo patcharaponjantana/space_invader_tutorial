@@ -30,6 +30,18 @@ def run_game(level):
     charge_laser_group = pygame.sprite.Group()
     boss_laser_group = pygame.sprite.Group()
 
+    game_group = {
+        'spaceship_group': spaceship_group,
+        'alien_group': alien_group,
+        'bullet_group': bullet_group,
+        'alien_bullet_group': alien_bullet_group,
+        'explosion_group': explosion_group,
+        'boss_group': boss_group,
+        'obstacle_group': obstacle_group,
+        'charge_laser_group': charge_laser_group,
+        'boss_laser_group': boss_laser_group,
+    }
+
     # create player
     spaceship = Spaceship(x=int(gv.screen_width / 2), y=gv.screen_height - 70)
     spaceship_group.add(spaceship)
@@ -39,13 +51,11 @@ def run_game(level):
         for col in range(gv.alien_cols):
             x = 100 + col * 100
             y = 100 + row * 70
-            alien = Aliens(x=x, y=y, move_speed=3, bullet_speed=3)
+            alien = Aliens(x=x, y=y, move_speed=gv.alien_move_speed, bullet_speed=3)
             alien_group.add(alien)
 
     # create boss
-    # boss = Boss(int(gv.screen_width / 2), 100)
     boss = None 
-    # boss_group.add(boss)
 
     run = True
 
@@ -55,10 +65,6 @@ def run_game(level):
     alien_direction = 1
     alien_change_direction = False
 
-    # level
-    # alien speed, alien bullet speed, bullet delay
-    boss_level = [1, 3]
-
     # add obstacle
     create_mutiple_obstacles(
         offset=gv.ostable_x_positions,
@@ -66,9 +72,6 @@ def run_game(level):
         y_start=600, 
         obstacle_group=obstacle_group
     )
-
-
-
 
     # Audio setup
     music = []
@@ -129,57 +132,38 @@ def run_game(level):
                 alien_bullet_group.add(alien_bullet)
                 last_alien_shot = time_now
                 
-
             # boss shoot
             if (random.random() < 0.08) and len(boss_group) > 0:
                 boss_bullet = Alien_Bullets(boss.rect.centerx, boss.rect.bottom, 6 + level)
                 alien_bullet_group.add(boss_bullet)
 
-            # if (time_now - last_boss_laser > gv.boss_laser_cooldown) and len(boss_laser_group) == 0:
-            #     boss_laser = ChargeLaser(boss.rect.centerx, boss.rect.bottom, 2)
-            #     boss_laser_group.add(boss_laser)
-            #     is_charge_laser = True
-
             # check alien group direction
+            increase_value = gv.alien_max_increase - gv.alien_max_increase * len(alien_group) / (gv.alien_rows * gv.alien_cols)
+            alien_move_speed = gv.alien_move_speed + increase_value
+
             for alien in alien_group:
                 if (alien.rect.right >= gv.screen_width) or (alien.rect.left <= 0):
                     alien_change_direction = True
-                #     alien_direction = -1
-                #     alien.rect.y += 15
-                # elif :
-                #     alien_direction = 1
-                #     alien.rect.y += 15
                 
             if alien_change_direction:
                 alien_direction *= -1
                 for alien in alien_group:
-                    alien.rect.y += 15
+                    alien.rect.y += 10
                 
                 alien_change_direction = False
 
 
             # update game objects            
-            spaceship_group.update(
-                alien_group=alien_group, 
-                alien_bullet_group=alien_bullet_group,
-                bullet_group=bullet_group,
-                explosion_group=explosion_group,
-                boss_laser_group=boss_laser_group,
-            )
+            spaceship_group.update(game_group)
             alien_group.update(
-                bullet_group=bullet_group, 
-                explosion_group=explosion_group,
+                game_group=game_group,
                 alien_direction=alien_direction,
+                alien_move_speed=alien_move_speed,
             )
             bullet_group.update()
             alien_bullet_group.update()
             explosion_group.update()
-            obstacle_group.update(
-                alien_group=alien_group, 
-                alien_bullet_group=alien_bullet_group,
-                bullet_group=bullet_group,
-                boss_laser_group=boss_laser_group,
-            )
+            obstacle_group.update(game_group)
             if is_boss_spawned:
                 charge_laser_group.update(boss_x=boss.rect.centerx - 30, boss_y=boss.rect.bottom)
                 boss_laser_group.update()
@@ -196,8 +180,7 @@ def run_game(level):
         
 
         # check to spawn boss
-        if len(alien_group) == 0 and not is_boss_spawned:
-            # if current_aliens_amount == 0 and len(self.boss_alien.sprites())==0 and not self.boss_spawned:       
+        if len(alien_group) == 0 and not is_boss_spawned:               
             boss = Boss(x=int(gv.screen_width / 2), y=-50, move_speed=5, hp=7)     
             boss_group.add(boss)
             is_boss_spawned = True    
@@ -207,7 +190,7 @@ def run_game(level):
             music[1].play(loops=-1)
 
         if is_boss_spawned:
-            boss_group.update(bullet_group, explosion_group, charge_laser_group, boss_laser_group)
+            boss_group.update(game_group)
 
             boss_group.draw(screen)
 
