@@ -42,10 +42,10 @@ class Spaceship(pygame.sprite.Sprite):
             self.rect.x -= self.speed
         elif key[pygame.K_RIGHT] and self.rect.right < gv.screen_width:
             self.rect.x += self.speed            
-        elif key[pygame.K_UP] and self.rect.top > 0:
-            self.rect.y -= self.speed        
-        elif key[pygame.K_DOWN] and self.rect.bottom < gv.screen_height:
-            self.rect.y += self.speed            
+        # elif key[pygame.K_UP] and self.rect.top > 0:
+        #     self.rect.y -= self.speed        
+        # elif key[pygame.K_DOWN] and self.rect.bottom < gv.screen_height:
+        #     self.rect.y += self.speed            
 
         #record current time
         time_now = pygame.time.get_ticks()
@@ -75,17 +75,18 @@ class Aliens(pygame.sprite.Sprite):
         self.image = pygame.image.load(f"img/alien{str(random.randint(1, 5))}.png")
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
-        self.move_counter = 0
+        # self.move_counter = 0
         self.move_speed = move_speed
         self.bullet_speed = bullet_speed
 
-    def update(self, bullet_group, explosion_group):
-        self.rect.x += self.move_speed
-        self.move_counter += self.move_speed
-        if abs(self.move_counter) > 75:
-            self.move_speed *= -1
-            # self.move_counter = 0
-            self.rect.y += 5
+    def update(self, bullet_group, explosion_group, alien_direction):
+        self.rect.x += self.move_speed * alien_direction
+        # self.move_counter += self.move_speed
+
+        # if abs(self.move_counter) > 75:
+        #     self.move_speed *= -1
+        #     # self.move_counter = 0
+        #     self.rect.y += 5
         
         if pygame.sprite.spritecollide(self, bullet_group, True):
             explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
@@ -326,6 +327,7 @@ class Laser(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         img = pygame.image.load(f"img/laser_beam.png")
+        img = pygame.transform.scale(img, (80, 800))
         # if size == 1:
         #     img = pygame.transform.scale(img, (20, 20))
         # if size == 2:

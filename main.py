@@ -44,7 +44,7 @@ def run_game(level):
 
     # create boss
     # boss = Boss(int(gv.screen_width / 2), 100)
-    boss = Boss(x=int(gv.screen_width / 2), y=-50, move_speed=8)
+    boss = None 
     # boss_group.add(boss)
 
     run = True
@@ -52,6 +52,8 @@ def run_game(level):
     last_alien_shot = pygame.time.get_ticks()
     last_boss_laser = pygame.time.get_ticks()
 
+    alien_direction = 1
+    alien_change_direction = False
 
     # level
     # alien speed, alien bullet speed, bullet delay
@@ -121,9 +123,9 @@ def run_game(level):
         else:
 
             # alien shoot
-            if (time_now - last_alien_shot > gv.alien_cooldown) and len(alien_bullet_group) < 5 and len(alien_group) > 0:
+            if (time_now - last_alien_shot > gv.alien_cooldown) and len(alien_bullet_group) < 10 and len(alien_group) > 0:
                 attacking_alien = random.choice(alien_group.sprites())
-                alien_bullet = Alien_Bullets(attacking_alien.rect.centerx, attacking_alien.rect.bottom, bullet_speed=5)
+                alien_bullet = Alien_Bullets(attacking_alien.rect.centerx, attacking_alien.rect.bottom, bullet_speed=8)
                 alien_bullet_group.add(alien_bullet)
                 last_alien_shot = time_now
                 
@@ -138,6 +140,24 @@ def run_game(level):
             #     boss_laser_group.add(boss_laser)
             #     is_charge_laser = True
 
+            # check alien group direction
+            for alien in alien_group:
+                if (alien.rect.right >= gv.screen_width) or (alien.rect.left <= 0):
+                    alien_change_direction = True
+                #     alien_direction = -1
+                #     alien.rect.y += 15
+                # elif :
+                #     alien_direction = 1
+                #     alien.rect.y += 15
+                
+            if alien_change_direction:
+                alien_direction *= -1
+                for alien in alien_group:
+                    alien.rect.y += 15
+                
+                alien_change_direction = False
+
+
             # update game objects            
             spaceship_group.update(
                 alien_group=alien_group, 
@@ -148,7 +168,8 @@ def run_game(level):
             )
             alien_group.update(
                 bullet_group=bullet_group, 
-                explosion_group=explosion_group
+                explosion_group=explosion_group,
+                alien_direction=alien_direction,
             )
             bullet_group.update()
             alien_bullet_group.update()
@@ -176,12 +197,13 @@ def run_game(level):
 
         # check to spawn boss
         if len(alien_group) == 0 and not is_boss_spawned:
-            # if current_aliens_amount == 0 and len(self.boss_alien.sprites())==0 and not self.boss_spawned:            
+            # if current_aliens_amount == 0 and len(self.boss_alien.sprites())==0 and not self.boss_spawned:       
+            boss = Boss(x=int(gv.screen_width / 2), y=-50, move_speed=5, hp=7)     
             boss_group.add(boss)
             is_boss_spawned = True    
             music[0].fadeout(2000) # fade out old music track over 2 seconds
 
-            music[1].set_volume(0.15)
+            music[1].set_volume(0.25)
             music[1].play(loops=-1)
 
         if is_boss_spawned:

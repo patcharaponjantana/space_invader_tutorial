@@ -10,8 +10,8 @@ screen_width = 600
 screen_height = 800
 
 # alien rows, cols
-alien_rows = 0
-alien_cols = 0
+alien_rows = 5
+alien_cols = 5
 alien_cooldown = 1000 # bullet cooldown in milliseconds
 
 # boss 
