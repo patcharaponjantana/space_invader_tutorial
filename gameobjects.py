@@ -17,6 +17,12 @@ explosion_fx.set_volume(0.25)
 bullet_hit_fx = pygame.mixer.Sound("audio/bullet_hit.wav")
 bullet_hit_fx.set_volume(0.25)
 
+laser_charge_fx = pygame.mixer.Sound("audio/laser_charge.wav")
+laser_charge_fx.set_volume(0.25)
+
+laser_shoot_fx = pygame.mixer.Sound("audio/shoot_laser.wav")
+laser_shoot_fx.set_volume(0.25)
+
 # create spaceship class
 class Spaceship(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -29,7 +35,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.shoot_cooldown = 1000 # milliseconds
 
 
-    def update(self, alien_group, alien_bullet_group, bullet_group, explosion_group):
+    def update(self, alien_group, alien_bullet_group, bullet_group, explosion_group, boss_laser_group):
         # get key press
         key = pygame.key.get_pressed()
         if key[pygame.K_LEFT] and self.rect.left > 0:
@@ -52,9 +58,11 @@ class Spaceship(pygame.sprite.Sprite):
             self.last_shot = time_now
         
         # check collide with alien or bullet
-        hit_alien = pygame.sprite.spritecollide(self, alien_group, False, pygame.sprite.collide_mask)
-        hit_bullet = pygame.sprite.spritecollide(self, alien_bullet_group, False, pygame.sprite.collide_mask) 
-        if hit_alien or hit_bullet:
+        hit_alien = pygame.sprite.spritecollide(self, alien_group, False)
+        hit_bullet = pygame.sprite.spritecollide(self, alien_bullet_group, False) 
+        hit_laser = pygame.sprite.spritecollide(self, boss_laser_group, False) 
+        
+        if hit_alien or hit_bullet or hit_laser:
             self.kill()
 
             explosion = Explosion(self.rect.centerx, self.rect.centery, 3)
@@ -160,12 +168,14 @@ class Obstacle(pygame.sprite.Sprite):
         self.image.fill(color)
         self.rect = self.image.get_rect(topleft = (x,y))
 
-    def update(self, alien_group, alien_bullet_group, bullet_group):               
+    def update(self, alien_group, alien_bullet_group, bullet_group, boss_laser_group):               
         # check collide with alien or bullet
-        hit_alien = pygame.sprite.spritecollide(self, alien_group, False, pygame.sprite.collide_mask)
-        hit_alien_bullet = pygame.sprite.spritecollide(self, alien_bullet_group, True, pygame.sprite.collide_mask) 
-        hit_spaceship_bullet = pygame.sprite.spritecollide(self, bullet_group, True, pygame.sprite.collide_mask) 
-        if hit_alien or hit_alien_bullet or hit_spaceship_bullet:
+        hit_alien = pygame.sprite.spritecollide(self, alien_group, False)
+        hit_alien_bullet = pygame.sprite.spritecollide(self, alien_bullet_group, True) 
+        hit_spaceship_bullet = pygame.sprite.spritecollide(self, bullet_group, True) 
+        hit_laser = pygame.sprite.spritecollide(self, boss_laser_group, False) 
+
+        if hit_alien or hit_alien_bullet or hit_spaceship_bullet or hit_laser:
             self.kill()
 
 obstacle_shape = [
@@ -197,7 +207,6 @@ def create_mutiple_obstacles(offset, x_start, y_start, obstacle_group):
     output: create multiple obstacles
     '''
     for offset_x in offset:
-        print('te ', offset_x)
         create_obstacle(x_start, y_start, offset_x, obstacle_group)
 
 
@@ -217,13 +226,21 @@ class Boss(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
         self.move_speed = move_speed
+        self.is_shoot_laser = False
+        self.last_boss_laser = pygame.time.get_ticks()
+        self.charge_laser_obj = None
+        self.boss_laser_obj = None
 
-    def update(self, bullet_group, explosion_group):
-        self.rect.x += self.move_speed
+    def update(self, bullet_group, explosion_group, charge_laser_group, boss_laser_group):
+        time_now = pygame.time.get_ticks()
 
-        if self.rect.left < 0 or self.rect.right >= gv.screen_width:
-            self.move_speed *= -1
-            self.rect.y += 20
+
+        if not self.is_shoot_laser:
+            self.rect.x += self.move_speed
+
+            if (self.rect.centerx < 0) or (self.rect.centerx >= gv.screen_width):
+                self.move_speed *= -1
+                self.rect.y += 40
         
         if pygame.sprite.spritecollide(self, bullet_group, True):
             self.hp -= 1
@@ -233,3 +250,105 @@ class Boss(pygame.sprite.Sprite):
                 explosion = Explosion(self.rect.centerx, self.rect.centery, 3)
                 explosion_group.add(explosion)
                 self.kill()
+
+        # charge laser
+        if (time_now - self.last_boss_laser > gv.boss_laser_cooldown):
+            self.charge_laser_obj = ChargeLaser(self.rect.centerx, self.rect.bottom, 2)
+            charge_laser_group.add(self.charge_laser_obj)
+            # self.is_charge_laser = True
+            self.last_boss_laser = time_now
+        
+        # create laser
+        if (self.charge_laser_obj) and (self.charge_laser_obj.is_finish) and (self.boss_laser_obj == None):
+            self.is_shoot_laser = True
+            self.boss_laser_obj = Laser(self.rect.centerx, self.rect.bottom + 300, 2)
+            boss_laser_group.add(self.boss_laser_obj)
+
+        # check if finish shoot laser, reset it
+        if self.boss_laser_obj and self.boss_laser_obj.is_finish:
+            self.boss_laser_obj = None
+            self.charge_laser_obj = None
+            self.is_shoot_laser = False
+
+
+
+# Boss Laser
+class ChargeLaser(pygame.sprite.Sprite):
+    def __init__(self, x, y, size):
+        pygame.sprite.Sprite.__init__(self)
+        self.images = []
+        self.n_frame = 3
+        for num in range(1, self.n_frame + 1):
+            img = pygame.image.load(f"img/laser_charge{num}.png")
+            if size == 1:
+                img = pygame.transform.scale(img, (20, 20))
+            if size == 2:
+                img = pygame.transform.scale(img, (80, 80))
+            if size == 3:
+                img = pygame.transform.scale(img, (160, 160))
+            #add the image to the list
+            self.images.append(img)
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.center = [x, y]
+        self.start_time = pygame.time.get_ticks()
+        self.counter = 0
+        self.is_finish = False
+        
+        # play sound
+        laser_charge_fx.play()
+
+
+    def update(self, boss_x, boss_y):
+        current_time = pygame.time.get_ticks()
+        animate_duration = 2000 # ms
+        animate_speed = 3
+        self.rect.x = boss_x
+        self.rect.y = boss_y
+
+        # update animation
+        self.counter += 1
+
+        if (self.counter >= animate_speed):
+            self.counter = 0
+            self.index = (self.index + 1) % self.n_frame
+            self.image = self.images[self.index]
+
+        # if the animation is complete, delete it
+        if current_time - self.start_time > animate_duration:
+            self.kill()
+            self.is_finish = True
+
+
+class Laser(pygame.sprite.Sprite):
+    def __init__(self, x, y, size):
+        pygame.sprite.Sprite.__init__(self)
+        self.images = []
+        img = pygame.image.load(f"img/laser_beam.png")
+        # if size == 1:
+        #     img = pygame.transform.scale(img, (20, 20))
+        # if size == 2:
+        #     img = pygame.transform.scale(img, (80, 80))
+        # if size == 3:
+        #     img = pygame.transform.scale(img, (160, 160))
+
+        # add the image to the list
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.center = [x, y]
+        self.start_time = pygame.time.get_ticks()
+        self.is_finish = False
+        
+        # play sound
+        laser_shoot_fx.play()
+
+
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        animate_duration = 2000
+
+        # if the animation is complete, delete it
+        if current_time - self.start_time > animate_duration:
+            self.kill()
+            self.is_finish = True

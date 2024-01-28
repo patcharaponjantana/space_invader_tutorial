@@ -3,7 +3,7 @@ from pygame import mixer
 from pygame.locals import KEYDOWN, K_ESCAPE, K_n
 import random
 
-from gameobjects import Spaceship, Aliens, Alien_Bullets, Boss, create_mutiple_obstacles
+from gameobjects import Spaceship, Aliens, Alien_Bullets, Boss, create_mutiple_obstacles, ChargeLaser
 import gamevariables as gv
 
 
@@ -12,8 +12,6 @@ pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((gv.screen_width, gv.screen_height))
 pygame.display.set_caption('Space Invanders')
-
-
 
 
 def run_game(level):
@@ -29,6 +27,8 @@ def run_game(level):
     explosion_group = pygame.sprite.Group()
     boss_group = pygame.sprite.Group()
     obstacle_group = pygame.sprite.Group()
+    charge_laser_group = pygame.sprite.Group()
+    boss_laser_group = pygame.sprite.Group()
 
     # create player
     spaceship = Spaceship(x=int(gv.screen_width / 2), y=gv.screen_height - 70)
@@ -44,12 +44,13 @@ def run_game(level):
 
     # create boss
     # boss = Boss(int(gv.screen_width / 2), 100)
+    boss = Boss(x=int(gv.screen_width / 2), y=-50, move_speed=8)
     # boss_group.add(boss)
 
     run = True
 
     last_alien_shot = pygame.time.get_ticks()
-    last_boss_shot = pygame.time.get_ticks()
+    last_boss_laser = pygame.time.get_ticks()
 
 
     # level
@@ -71,13 +72,14 @@ def run_game(level):
     music = []
     music.append(pygame.mixer.Sound('./audio/music.wav'))                                 # music track 0
     music.append(pygame.mixer.Sound('./audio/8-Bit Boss Battle- 4 - By EliteFerrex.mp3')) # music track 1
-    music[0].set_volume(0.25)
+    music[0].set_volume(0.15)
     music[0].play(loops=-1)
 
     is_boss_spawned = False
     level_win = False
 
     is_quite_game = False
+    is_charge_laser = False
 
     while run:
 
@@ -121,16 +123,20 @@ def run_game(level):
             # alien shoot
             if (time_now - last_alien_shot > gv.alien_cooldown) and len(alien_bullet_group) < 5 and len(alien_group) > 0:
                 attacking_alien = random.choice(alien_group.sprites())
-                alien_bullet = Alien_Bullets(attacking_alien.rect.centerx, attacking_alien.rect.bottom)
+                alien_bullet = Alien_Bullets(attacking_alien.rect.centerx, attacking_alien.rect.bottom, bullet_speed=5)
                 alien_bullet_group.add(alien_bullet)
                 last_alien_shot = time_now
                 
 
             # boss shoot
-                #  (time_now - last_boss_shot > gv.boss_cooldown) and 
             if (random.random() < 0.08) and len(boss_group) > 0:
                 boss_bullet = Alien_Bullets(boss.rect.centerx, boss.rect.bottom, 6 + level)
                 alien_bullet_group.add(boss_bullet)
+
+            # if (time_now - last_boss_laser > gv.boss_laser_cooldown) and len(boss_laser_group) == 0:
+            #     boss_laser = ChargeLaser(boss.rect.centerx, boss.rect.bottom, 2)
+            #     boss_laser_group.add(boss_laser)
+            #     is_charge_laser = True
 
             # update game objects            
             spaceship_group.update(
@@ -138,6 +144,7 @@ def run_game(level):
                 alien_bullet_group=alien_bullet_group,
                 bullet_group=bullet_group,
                 explosion_group=explosion_group,
+                boss_laser_group=boss_laser_group,
             )
             alien_group.update(
                 bullet_group=bullet_group, 
@@ -150,8 +157,11 @@ def run_game(level):
                 alien_group=alien_group, 
                 alien_bullet_group=alien_bullet_group,
                 bullet_group=bullet_group,
+                boss_laser_group=boss_laser_group,
             )
-            
+            if is_boss_spawned:
+                charge_laser_group.update(boss_x=boss.rect.centerx - 30, boss_y=boss.rect.bottom)
+                boss_laser_group.update()
 
         # draw sprite groups
         spaceship_group.draw(screen)
@@ -160,21 +170,22 @@ def run_game(level):
         alien_bullet_group.draw(screen)
         explosion_group.draw(screen)
         obstacle_group.draw(screen)
+        charge_laser_group.draw(screen)
+        boss_laser_group.draw(screen)
         
 
         # check to spawn boss
         if len(alien_group) == 0 and not is_boss_spawned:
-            # if current_aliens_amount == 0 and len(self.boss_alien.sprites())==0 and not self.boss_spawned:
-            boss = Boss(x=int(gv.screen_width / 2), y=-50, move_speed=5)
+            # if current_aliens_amount == 0 and len(self.boss_alien.sprites())==0 and not self.boss_spawned:            
             boss_group.add(boss)
             is_boss_spawned = True    
             music[0].fadeout(2000) # fade out old music track over 2 seconds
 
-            music[1].set_volume(0.25)
+            music[1].set_volume(0.15)
             music[1].play(loops=-1)
 
         if is_boss_spawned:
-            boss_group.update(bullet_group=bullet_group, explosion_group=explosion_group)
+            boss_group.update(bullet_group, explosion_group, charge_laser_group, boss_laser_group)
 
             boss_group.draw(screen)
 

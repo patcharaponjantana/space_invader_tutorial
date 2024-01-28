@@ -16,6 +16,7 @@ alien_cooldown = 1000 # bullet cooldown in milliseconds
 
 # boss 
 boss_cooldown = 500 # bullet cooldown in milliseconds
+boss_laser_cooldown = 5000
 
 # define fonts
 font30 = pygame.font.SysFont('Constantia', 30)
