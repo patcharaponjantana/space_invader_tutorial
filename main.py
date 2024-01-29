@@ -81,9 +81,10 @@ def run_game(level):
     alien_change_direction = False
     run = True
 
-    # Increase when level up 
+    # Increase enemy properties when level up 
     # - alien: alien_move_speed, alien_max_increase, alien_bullet_speed, alien_cooldown
     # - boss: boss_bullet_ratio, boss_laser_cooldown, boss_hp, boss_move_speed
+    # Step 8: Add Multiple Level. You can adjust game level in here
     level_index = level - 1
     alien_move_speed = gv.alien_move_speed + level_index
     alien_max_increase = gv.alien_max_increase + level_index
@@ -187,64 +188,66 @@ def run_game(level):
             alien_bullet_group.update()
             
 
-
             # check to spawn boss
-            # if len(alien_group) == 0 and not is_boss_spawned:               
-            #     boss = Boss(
-            #         x=int(gv.screen_width / 2), 
-            #         y=-50, 
-            #         move_speed=boss_move_speed, 
-            #         hp=boss_hp,
-            #         bullet_ratio=boss_bullet_ratio,
-            #         bullet_speed=alien_bullet_speed,
-            #         laser_cooldown=boss_laser_cooldown,
-            #     )     
-            #     boss_group.add(boss)
-            #     is_boss_spawned = True   
+            # Step 6: Add Boss. Add your code here
+            if len(alien_group) == 0 and not is_boss_spawned:               
+                boss = Boss(
+                    x=int(gv.screen_width / 2), 
+                    y=-50, 
+                    move_speed=boss_move_speed, 
+                    hp=boss_hp,
+                    bullet_ratio=boss_bullet_ratio,
+                    bullet_speed=alien_bullet_speed,
+                    laser_cooldown=boss_laser_cooldown,
+                )     
+                boss_group.add(boss)
+                is_boss_spawned = True   
 
-            #     # change music 
-            #     music[0].fadeout(2000) # fade out old music track over 2 seconds
-            #     music[1].set_volume(0.25)
-            #     music[1].play(loops=-1)
+                # change music 
+                music[0].fadeout(2000) # fade out old music track over 2 seconds
+                music[1].set_volume(0.25)
+                music[1].play(loops=-1)
 
             # update and display boss object
-            # if is_boss_spawned:
-            #     boss_group.update(game_group)
-            #     charge_laser_group.update(boss_x=boss.rect.centerx - 30, boss_y=boss.rect.bottom)
-            #     boss_laser_group.update()
+            if is_boss_spawned:
+                boss_group.update(game_group)
+                charge_laser_group.update(boss_x=boss.rect.centerx - 30, boss_y=boss.rect.bottom)
+                boss_laser_group.update()
 
-            #     boss_group.draw(screen)
+                boss_group.draw(screen)
 
         # check game over
-        # if len(spaceship_group) == 0:
-        #     gv.draw_text(
-        #         screen,
-        #         text='GAME OVER!', 
-        #         font=gv.font40, 
-        #         text_color=gv.white, 
-        #         x=int(gv.screen_width / 2 - 110), 
-        #         y=int(gv.screen_height / 2 )
-        #     )
+        # Step 5: Add Gameover Condition. Add your code here
+        if len(spaceship_group) == 0:
+            gv.draw_text(
+                screen,
+                text='GAME OVER!', 
+                font=gv.font40, 
+                text_color=gv.white, 
+                x=int(gv.screen_width / 2 - 110), 
+                y=int(gv.screen_height / 2 )
+            )
 
         # check win the current level
-        # if len(alien_group) == 0 and len(boss_group) == 0 :
-        #     gv.draw_text(
-        #         screen,
-        #         text='Win!', 
-        #         font=gv.font40, 
-        #         text_color=gv.white, 
-        #         x=int(gv.screen_width / 2 - 30), 
-        #         y=int(gv.screen_height / 2)
-        #     )
-        #     gv.draw_text(
-        #         screen,
-        #         text='Press N for next level', 
-        #         font=gv.font40, 
-        #         text_color=gv.white, 
-        #         x=int(gv.screen_width / 2 - 150), 
-        #         y=int(gv.screen_height / 2 + 50)
-        #     )      
-        #     level_win = True
+        # Step 8: Add Multiple Level . Add your code here
+        if len(alien_group) == 0 and len(boss_group) == 0 :
+            gv.draw_text(
+                screen,
+                text='Win!', 
+                font=gv.font40, 
+                text_color=gv.white, 
+                x=int(gv.screen_width / 2 - 30), 
+                y=int(gv.screen_height / 2)
+            )
+            gv.draw_text(
+                screen,
+                text='Press N for next level', 
+                font=gv.font40, 
+                text_color=gv.white, 
+                x=int(gv.screen_width / 2 - 150), 
+                y=int(gv.screen_height / 2 + 50)
+            )      
+            level_win = True
 
         # event handlers
         for event in pygame.event.get():
