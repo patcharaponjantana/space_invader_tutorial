@@ -43,7 +43,7 @@ alien_bullet_speed = 8
 # boss_bullet_cooldown = 500 # bullet cooldown in milliseconds
 boss_bullet_ratio = 0.08 # range is 0 to 1
 boss_laser_cooldown = 10000 # milliseconds
-boss_hp = 5
+boss_hp = 8
 boss_move_speed = 5
 
 
