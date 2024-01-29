@@ -66,6 +66,7 @@ class Spaceship(pygame.sprite.Sprite):
 ...
 
 # update game objects  
+# Step 2-4: Update game objects. Add your code here
 ...
 bullet_group.update()
 obstacle_group.update(game_group) 
@@ -158,6 +159,7 @@ def run_game(level):
             ...
 
             # update game objects  
+            # Step 2-4: Update game objects. Add your code here
             ...
             alien_group.update(
                 game_group=game_group,
@@ -197,7 +199,8 @@ def run_game(level):
 
             ...
 
-            # update game objects  
+            # update game objects 
+            # Step 2-4: Update game objects. Add your code here 
             ...
             alien_bullet_group.update()
 
