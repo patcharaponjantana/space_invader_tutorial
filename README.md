@@ -43,10 +43,10 @@ python main.py
 class Spaceship(pygame.sprite.Sprite):
     ...
 
-    # add more bullet group
-    def update(self, alien_group, bullet_group):
+    def update(self, game_group):
         ...
 
+        # Step 2: Add Spaceship Bullet. Add your code here
         # record current time
         time_now = pygame.time.get_ticks()
 
@@ -74,7 +74,63 @@ obstacle_group.update(game_group)
 
 <h2 id="3-add-enemies"> 3. Add Enemies </h2>
 
-- In `gameobjects.py`, add colid condition in `Spaceship` class and add update method in `Aliens` class 
+
+- generate each aliens and set their movement condition
+```py
+# main.py
+
+def run_game(level):
+    ... 
+
+    # generate aliens
+    # Step 3: add enemies. Add your code here
+    for row in range(gv.alien_rows):
+        for col in range(gv.alien_cols):
+            x = 100 + col * 100
+            y = 100 + row * 70
+            alien = Aliens(x=x, y=y, move_speed=gv.alien_move_speed, bullet_speed=3)
+            alien_group.add(alien)
+    ... 
+
+
+    while run:
+        ...
+
+        if countdown > 0:
+            ...
+        else: # in game loop
+            
+            # check alien group direction
+            # Step 3: add enemies. Add your code here
+            increase_value = alien_max_increase - alien_max_increase * len(alien_group) / (gv.alien_rows * gv.alien_cols)
+            current_alien_move_speed = alien_move_speed + increase_value
+
+            for alien in alien_group:
+                if (alien.rect.right >= gv.screen_width) or (alien.rect.left <= 0):
+                    alien_change_direction = True
+                
+            if alien_change_direction:
+                alien_direction *= -1
+                for alien in alien_group:
+                    alien.rect.y += 10
+                
+                alien_change_direction = False
+
+            ...
+
+            # update game objects  
+            # Step 2-4: Update game objects. Add your code here
+            ...
+            alien_group.update(
+                game_group=game_group,
+                alien_direction=alien_direction,
+                alien_move_speed=current_alien_move_speed,
+            )
+            explosion_group.update()
+
+```
+
+- In `gameobjects.py`, add collision condition in `Spaceship` class and add update method in `Aliens` class 
 ```py
 # gameobjects.py
 
@@ -104,6 +160,7 @@ class Spaceship(pygame.sprite.Sprite):
 class Aliens(pygame.sprite.Sprite):
     ...
 
+    # Step 3: Add Enemies. Add your code here
     def update(self, game_group, alien_direction, alien_move_speed):
         self.move_speed = alien_move_speed
         self.rect.x += self.move_speed * alien_direction
@@ -115,60 +172,7 @@ class Aliens(pygame.sprite.Sprite):
 
 ```
 
-- generate each aliens and set their movement condition
-```py
-# main.py
 
-def run_game(level):
-    ... 
-
-    # generate aliens
-    # Step 2: add enemies. Add your code here
-    for row in range(gv.alien_rows):
-        for col in range(gv.alien_cols):
-            x = 100 + col * 100
-            y = 100 + row * 70
-            alien = Aliens(x=x, y=y, move_speed=gv.alien_move_speed, bullet_speed=3)
-            alien_group.add(alien)
-    ... 
-
-
-    while run:
-        ...
-
-        if countdown > 0:
-            ...
-        else: # in game loop
-            
-            # check alien group direction
-            # Step 2: add enemies. Add your code here
-            increase_value = alien_max_increase - alien_max_increase * len(alien_group) / (gv.alien_rows * gv.alien_cols)
-            current_alien_move_speed = alien_move_speed + increase_value
-
-            for alien in alien_group:
-                if (alien.rect.right >= gv.screen_width) or (alien.rect.left <= 0):
-                    alien_change_direction = True
-                
-            if alien_change_direction:
-                alien_direction *= -1
-                for alien in alien_group:
-                    alien.rect.y += 10
-                
-                alien_change_direction = False
-
-            ...
-
-            # update game objects  
-            # Step 2-4: Update game objects. Add your code here
-            ...
-            alien_group.update(
-                game_group=game_group,
-                alien_direction=alien_direction,
-                alien_move_speed=current_alien_move_speed,
-            )
-            explosion_group.update()
-
-```
 
 <h2 id="4-add-enemy-bullets"> 4. Add Enemy Bullets </h2>
 
@@ -283,7 +287,7 @@ while run:
 
 - add update method in `Boss` class
 ```py
-gameobjects.py
+# gameobjects.py
 
 class Boss(pygame.sprite.Sprite):
     ...
@@ -323,7 +327,7 @@ class Boss(pygame.sprite.Sprite):
 
 - add update method in `Boss` class
 ```py
-gameobjects.py
+# gameobjects.py
 
 class Boss(pygame.sprite.Sprite):
     ...
