@@ -45,12 +45,30 @@ class Spaceship(pygame.sprite.Sprite):
 
         # Step 2: Add Spaceship Bullet. Add your code here
         # record current time
+        time_now = pygame.time.get_ticks()
+
+        #shoot
+        if key[pygame.K_SPACE] and (time_now - self.last_shot) > self.shoot_cooldown:
+            laser_fx.play()
+            bullet = Bullets(self.rect.centerx, self.rect.top)
+            game_group['bullet_group'].add(bullet)
+            self.last_shot = time_now
+
             
         
         # check collide with alien or bullet
         # Step 3: Add Enemies. Add your code here
         # Step 4: Add Enemy Bullet. Add your code here
         # Step 7: Add Boss Laser. Add your code here
+        hit_alien = pygame.sprite.spritecollide(self, game_group['alien_group'], False)
+        hit_bullet = pygame.sprite.spritecollide(self, game_group['alien_bullet_group'], False) 
+        hit_laser = pygame.sprite.spritecollide(self, game_group['boss_laser_group'], False) 
+        
+        if hit_alien or hit_bullet or hit_laser:
+            self.kill()
+
+            explosion = Explosion(self.rect.centerx, self.rect.centery, 3)
+            game_group['explosion_group'].add(explosion)
             
 
 
@@ -79,6 +97,14 @@ class Aliens(pygame.sprite.Sprite):
         self.bullet_speed = bullet_speed
 
     # Step 3: Add Enemies. Add your code here
+    def update(self, game_group, alien_direction, alien_move_speed):
+        self.move_speed = alien_move_speed
+        self.rect.x += self.move_speed * alien_direction
+        
+        if pygame.sprite.spritecollide(self, game_group['bullet_group'], True):
+            explosion = Explosion(self.rect.centerx, self.rect.centery, 2)
+            game_group['explosion_group'].add(explosion)
+            self.kill()
         
 
 
@@ -210,6 +236,53 @@ class Boss(pygame.sprite.Sprite):
         self.boss_laser_obj = None
 
     # Step 6: Add Boss. Add your code here
+    def update(self, game_group):
+        time_now = pygame.time.get_ticks()
+
+        if not self.is_shoot_laser:
+            self.rect.x += self.move_speed
+
+            if (self.rect.centerx < 0) or (self.rect.centerx >= gv.screen_width):
+                self.move_speed *= -1
+                self.rect.y += 40
+        
+        if pygame.sprite.spritecollide(self, game_group['bullet_group'], True):
+            self.hp -= 1
+            bullet_hit_fx.play()
+
+            if self.hp == 0:
+                explosion = Explosion(self.rect.centerx, self.rect.centery, 3)
+                game_group['explosion_group'].add(explosion)
+                self.kill()
+        
+
+        # boss shoot
+        if random.random() < self.bullet_ratio:
+            boss_bullet = Alien_Bullets(
+                    self.rect.centerx, 
+                    self.rect.bottom, 
+                    bullet_speed=self.bullet_speed
+                )
+            game_group['alien_bullet_group'].add(boss_bullet)
+
+        # Step 7: Add Boss Laser. Add your code here
+        # charge laser
+        if (time_now - self.last_boss_laser > self.laser_cooldown):
+            self.charge_laser_obj = ChargeLaser(self.rect.centerx, self.rect.bottom, 2)
+            game_group['charge_laser_group'].add(self.charge_laser_obj)
+            self.last_boss_laser = time_now
+        
+        # shoot laser
+        if (self.charge_laser_obj) and (self.charge_laser_obj.is_finish) and (self.boss_laser_obj == None):
+            self.is_shoot_laser = True
+            self.boss_laser_obj = Laser(self.rect.centerx, self.rect.bottom + 400, 2)
+            game_group['boss_laser_group'].add(self.boss_laser_obj)
+
+        # check if finish shoot laser, reset it
+        if self.boss_laser_obj and self.boss_laser_obj.is_finish:
+            self.boss_laser_obj = None
+            self.charge_laser_obj = None
+            self.is_shoot_laser = False
         
 
 
