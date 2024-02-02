@@ -415,20 +415,21 @@ class Boss(pygame.sprite.Sprite):
 
 <h2 id="9-make-window-executable-file"> Make Window Executable File (.exe)  </h2>
 
-windows key + r
+- install pyinstaller
+```sh
+pip install pyinstaller
+```
 
-type cmd
+- export to .exe
+```sh
+pyinstaller main.py --onefile --windowed --paths=.
+```
 
-type pip install pyinstaller
-
-close command prompt and open library
-
-go to your project
-
-highlight the path displayed at the top and change it to cmd
-
-press enter; command prompt should open up
-
-type pyinstaller --onefile -w [name of file].py
-
-wait for it to finish
+- copy `img` and `audio` folders to `dist`. So, your folder structure will be like the follow
+```
+├── public
+│   ├── img
+│   ├── audio
+│   ├── main.exe
+```
+- double click to `main` (.exe) to open the game
