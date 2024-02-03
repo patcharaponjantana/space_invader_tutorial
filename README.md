@@ -32,6 +32,8 @@ pip install pygame
 python main.py
 ```
 
+![01_run_project.png](./_docs/01_run_project.png )
+
 <h2 id="2-add-spaceship-bullet"> 2. Add Spaceship Bullet </h2>
 
 - add shooting feature to update method of `Spaceship` class
@@ -71,6 +73,8 @@ class Spaceship(pygame.sprite.Sprite):
 bullet_group.update()
 obstacle_group.update(game_group) 
 ```
+
+![02_02_add_spaceship_bullet.png](./_docs/02_02_add_spaceship_bullet.png )
 
 <h2 id="3-add-enemies"> 3. Add Enemies </h2>
 
@@ -130,6 +134,10 @@ def run_game(level):
 
 ```
 
+
+![03_01_add_enemies.png](./_docs/03_01_add_enemies.png )
+
+
 - In `gameobjects.py`, add collision condition in `Spaceship` class and add update method in `Aliens` class 
 ```py
 # gameobjects.py
@@ -172,6 +180,7 @@ class Aliens(pygame.sprite.Sprite):
 
 ```
 
+![03_02_add_alien_movement.png](./_docs/03_02_add_alien_movement.png )
 
 
 <h2 id="4-add-enemy-bullets"> 4. Add Enemy Bullets </h2>
@@ -210,6 +219,9 @@ def run_game(level):
 
 ```
 
+![04_add_enemy_bullet.png](./_docs/04_add_enemy_bullet.png )
+
+
 <h2 id="5-add-gameover-condition"> 5. Add Gameover Condition </h2>
 
 - check if no spaceship in the group 
@@ -239,6 +251,8 @@ while run:
         )
 
 ```
+
+![05_add_gameover_condition.png](./_docs/05_add_gameover_condition.png )
 
 <h2 id="6-add-boss"> 6. Add Boss </h2>
 
@@ -323,6 +337,8 @@ class Boss(pygame.sprite.Sprite):
             game_group['alien_bullet_group'].add(boss_bullet)
 ```
 
+![06_add_boss.png](./_docs/06_add_boss.png )
+
 <h2 id="7-add-boss-laser"> 7. Add Boss Laser </h2>
 
 - add update method in `Boss` class
@@ -355,6 +371,10 @@ class Boss(pygame.sprite.Sprite):
             self.charge_laser_obj = None
             self.is_shoot_laser = False
 ```
+
+![07_01_charge_laser.png](./_docs/07_01_charge_laser.png )
+
+![07_02_shoot_laser.png](./_docs/07_02_shoot_laser.png )
 
 <h2 id="8-add-multiple-level"> 8. Add Multiple Level  </h2>
 
@@ -412,6 +432,10 @@ class Boss(pygame.sprite.Sprite):
     boss_hp = gv.boss_hp + level_index * 2
     boss_move_speed = gv.boss_move_speed + level_index * 2
 ```
+
+![08_01_add_multiple_level.png](./_docs/08_01_add_multiple_level.png )
+
+![08_02_new_level.png](./_docs/08_02_new_level.png )
 
 <h2 id="9-make-window-executable-file"> Make Window Executable File (.exe)  </h2>
 
